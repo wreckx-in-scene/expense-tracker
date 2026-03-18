@@ -18,7 +18,8 @@ func main() {
 	}
 
 	//routes
-	http.HandleFunc("/register", handlers.Register)
+	http.HandleFunc("/register", handlers.Register) //register route
+	http.HandleFunc("/login", handlers.Login)       //login route
 
 	fmt.Println("Server starting on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
