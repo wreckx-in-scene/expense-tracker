@@ -29,6 +29,14 @@ func main() {
 		}
 	}))
 
+	http.HandleFunc("/expenses/", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPatch {
+			handlers.UpdateExpense(w, r)
+		} else if r.Method == http.MethodDelete {
+			handlers.DeleteExpense(w, r)
+		}
+	}))
+
 	fmt.Println("Server starting on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
