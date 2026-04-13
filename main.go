@@ -72,6 +72,21 @@ func main() {
 		}
 	}))
 
+	http.HandleFunc("/incomes", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.CreateIncome(w, r)
+		} else if r.Method == http.MethodGet {
+			handlers.GetIncomes(w, r)
+		}
+	}))
+
+	http.HandleFunc("/incomes/", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPatch {
+			handlers.UpdateIncome(w, r)
+		} else if r.Method == http.MethodDelete {
+			handlers.DeleteIncome(w, r)
+		}
+	}))
 	fmt.Println("Server starting on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

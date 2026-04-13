@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 )
@@ -31,7 +32,8 @@ type GeminiResponse struct {
 // function to call gemini api
 func CallGemini(prompt string) (string, error) {
 	apiKey := os.Getenv("GEMINI_API_KEY")
-	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey
+
+	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey
 
 	reqBody := GeminiRequest{
 		Contents: []Content{
@@ -54,10 +56,12 @@ func CallGemini(prompt string) (string, error) {
 	}
 	defer resp.Body.Close()
 
+	body, _ := io.ReadAll(resp.Body)
+
 	var geminiResp GeminiResponse
-	json.NewDecoder(resp.Body).Decode(&geminiResp)
+	json.Unmarshal(body, &geminiResp)
 	if len(geminiResp.Candidates) == 0 {
-		return "", fmt.Errorf("no response from Gemini")
+		return "", fmt.Errorf("no response from gemini")
 	}
 
 	return geminiResp.Candidates[0].Content.Parts[0].Text, nil
