@@ -21,32 +21,56 @@ func main() {
 	}
 
 	//routes
-	http.HandleFunc("/register", handlers.Register)                                             //register route
-	http.HandleFunc("/login", handlers.Login)                                                   //login route
-	http.HandleFunc("/expenses", middleware.Auth(func(w http.ResponseWriter, r *http.Request) { //create expense route
+	http.HandleFunc("/register", handlers.Register)
+	http.HandleFunc("/login", handlers.Login)
+
+	http.HandleFunc("/expenses", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			handlers.CreateExpense(w, r)
-		} else if r.Method == http.MethodGet { //get expense route
+		} else if r.Method == http.MethodGet {
 			handlers.GetExpenses(w, r)
 		}
 	}))
 
 	http.HandleFunc("/expenses/", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPatch { //update expense route
+		if r.Method == http.MethodPatch {
 			handlers.UpdateExpense(w, r)
-		} else if r.Method == http.MethodDelete { //delete expense route
+		} else if r.Method == http.MethodDelete {
 			handlers.DeleteExpense(w, r)
 		}
 	}))
 
 	//analytics routes
-	http.HandleFunc("/analytics/summary", middleware.Auth(handlers.GetSummary))
-	http.HandleFunc("/analytics/categories", middleware.Auth(handlers.GetCategory))
+	http.HandleFunc("/analytics/summary", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			handlers.GetSummary(w, r)
+		}
+	}))
+
+	http.HandleFunc("/analytics/categories", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			handlers.GetCategory(w, r)
+		}
+	}))
 
 	//ai routes
-	http.HandleFunc("/ai/categorize", middleware.Auth(handlers.Categorize))
-	http.HandleFunc("/ai/insights", middleware.Auth(handlers.GetInsights))
-	http.HandleFunc("/ai/chat", middleware.Auth(handlers.Chat))
+	http.HandleFunc("/ai/categorize", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.Categorize(w, r)
+		}
+	}))
+
+	http.HandleFunc("/ai/insights", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			handlers.GetInsights(w, r)
+		}
+	}))
+
+	http.HandleFunc("/ai/chat", middleware.Auth(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.Chat(w, r)
+		}
+	}))
 
 	fmt.Println("Server starting on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
