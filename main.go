@@ -5,12 +5,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/joho/godotenv"
 	"www.github.com/wreckx-in-scene/expense-tracker/db"
 	"www.github.com/wreckx-in-scene/expense-tracker/handlers"
 	"www.github.com/wreckx-in-scene/expense-tracker/middleware"
 )
 
 func main() {
+	godotenv.Load()
 	connString := "postgres://postgres:Amogh%40123@localhost:5432/expense-tracker?sslmode=disable"
 
 	err := db.Connect(connString)
@@ -40,6 +42,11 @@ func main() {
 	//analytics routes
 	http.HandleFunc("/analytics/summary", middleware.Auth(handlers.GetSummary))
 	http.HandleFunc("/analytics/categories", middleware.Auth(handlers.GetCategory))
+
+	//ai routes
+	http.HandleFunc("/ai/categorize", middleware.Auth(handlers.Categorize))
+	http.HandleFunc("/ai/insights", middleware.Auth(handlers.GetInsights))
+	http.HandleFunc("/ai/chat", middleware.Auth(handlers.Chat))
 
 	fmt.Println("Server starting on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
