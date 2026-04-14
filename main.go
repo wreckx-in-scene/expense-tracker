@@ -87,6 +87,9 @@ func main() {
 			handlers.DeleteIncome(w, r)
 		}
 	}))
+
+	http.HandleFunc("/transactions/recent", middleware.Auth(handlers.GetRecentTransactions))
+
 	fmt.Println("Server starting on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
