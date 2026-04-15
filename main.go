@@ -11,6 +11,21 @@ import (
 	"www.github.com/wreckx-in-scene/expense-tracker/middleware"
 )
 
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// If it's a "preflight" request, just return OK
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
 func main() {
 	godotenv.Load()
 	connString := "postgres://postgres:Amogh%40123@localhost:5432/expense-tracker?sslmode=disable"
@@ -91,5 +106,5 @@ func main() {
 	http.HandleFunc("/transactions/recent", middleware.Auth(handlers.GetRecentTransactions))
 
 	fmt.Println("Server starting on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", enableCORS(http.DefaultServeMux)))
 }
