@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -25,6 +26,7 @@ func CreateExpense(w http.ResponseWriter, r *http.Request) {
 	//reading the json body
 	var req ExpenseReq
 	json.NewDecoder(r.Body).Decode(&req)
+	fmt.Println("REQ : ", req) //debug log
 
 	//validating
 	if req.Amount == 0 {
@@ -37,6 +39,7 @@ func CreateExpense(w http.ResponseWriter, r *http.Request) {
 	_, err := db.DB.Exec(context.Background(), "INSERT INTO expenses (user_id , amount , description , category , date) VALUES ($1 , $2 , $3 , $4 , $5)", userID, req.Amount, req.Description, req.Category, req.Date)
 
 	if err != nil {
+		fmt.Println("DB error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Could not save expense"})
 		return
@@ -54,6 +57,7 @@ func GetExpenses(w http.ResponseWriter, r *http.Request) {
 	var expenses []models.Expense
 
 	rows, err := db.DB.Query(context.Background(), "SELECT id , amount , description , category , date FROM expenses WHERE user_id = $1", userID)
+	defer rows.Close()
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
